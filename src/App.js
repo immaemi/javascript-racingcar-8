@@ -1,4 +1,4 @@
-import { Console } from "@woowacourse/mission-utils";
+import { Console , Random } from "@woowacourse/mission-utils";
 
 class App {
   /**
@@ -133,12 +133,53 @@ class App {
     return number;
   }
 
+  /**
+   * 자동차 이동 처리 - 랜덤값에 따라 전진 여부 결정
+   * @param {number[]} carPositions - 각 자동차의 현재 위치 배열
+   * @returns {number[]} 업데이트된 위치 배열
+   */
+  moveCars(carPositions) {
+    return carPositions.map(position => {
+      const randomNumber = Random.pickNumberInRange(0, 9);
+      if(randomNumber >= 4) {
+        return position + 1;
+      } else {
+        return position;
+      }
+    });
+  }
+
+
+  /**
+   * 경주 실행 메인 함수 
+   * @param {string[]} carNames - 자동차 이름 배열
+   * @param {number} attemptCount - 시도 횟수
+   */
+  runRace(carNames, attemptCount) {
+    // 각 자동차의 현재 위치를 저장하는 배열
+    const carPositions = new Array(carNames.length).fill(0);
+
+    // 경주 실행 (이동 로직만)
+    for(let round = 0; round < attemptCount; round++) {
+      // 자동차 이동 처리
+      const updatedPositions = this.moveCars(carPositions);
+      
+      // 위치 업데이트
+      for(let i = 0; i < carNames.length; i++) {
+        carPositions[i] = updatedPositions[i];
+      }
+    }
+  }
+
   async run() {
     const carNameInput = await Console.readLineAsync("경주할 자동차 이름을 입력하세요.(이름은 쉼표(,) 기준으로 구분)\n");
     const carNames = this.validateCarNames(carNameInput);
 
     const attemptCountInput = await Console.readLineAsync("시도할 횟수는 몇 회인가요?\n");
     const attemptCount = this.validateAttemptCount(attemptCountInput);
+
+    // 경주 실행
+    this.runRace(carNames, attemptCount);
   }
 }
 
