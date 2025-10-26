@@ -159,7 +159,7 @@ class App {
     Console.print('\n실행결과');
     // 각 자동차의 현재 위치를 저장하는 배열
     const carPositions = new Array(carNames.length).fill(0);
-    
+
     // 경주 실행 
     for(let round = 0; round < attemptCount; round++) {
       // 자동차 이동 처리
@@ -172,6 +172,7 @@ class App {
       
       this.printRoundResult(carNames, carPositions);
     }
+    this.printFinalResult(carNames, carPositions);
   }
 
   /**
@@ -185,6 +186,17 @@ class App {
       Console.print(`${carNames[i]} : ${position}`);
     }
     Console.print(''); // 빈 줄
+  }
+
+  /**
+   * 최종 우승자 결과 출력
+   * @param {string[]} carNames - 자동차 이름 배열
+   * @param {number[]} carPositions - 각 자동차의 현재 위치 배열
+   */
+  printFinalResult(carNames, carPositions) {
+    const maxPosition = Math.max(...carPositions);
+    const winners = carNames.filter((name, index) => carPositions[index] === maxPosition);
+    Console.print(`최종 우승자 : ${winners.join(', ')}`);
   }
 
   async run() {
