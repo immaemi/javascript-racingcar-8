@@ -3,13 +3,13 @@ import { Console } from "@woowacourse/mission-utils";
 class App {
   /**
    * 구분자 검증 - 쉼표(,) 외의 구분자 사용 시 에러 발생
-   * @param {string} input - 사용자 입력 문자열
+   * @param {string} carNameInput - 사용자 입력 문자열
    * @throws {Error} 쉼표 외의 구분자 사용 시
    */
-  _validateSeparator(input) {
+  _validateSeparator(carNameInput) {
     // 특수문자 구분자 검증 (세미콜론, 콜론 등)
     const invalidSeparators = /[;:|@#$%^&*()_+=\[\]{}'";<>?\/\\~`]/;
-    if(invalidSeparators.test(input)) {
+    if(invalidSeparators.test(carNameInput)) {
       throw new Error("[ERROR] 자동차 이름은 쉼표(,) 기준으로만 구분해야 합니다.");
     }
     return true;
@@ -68,16 +68,16 @@ class App {
 
   /**
    * 자동차 이름 입력 검증 메인 함수
-   * @param {string} input - 사용자 입력 문자열
+   * @param {string} carNameInput - 사용자 입력 문자열
    * @returns {string[]} 검증된 자동차 이름 배열
    * @throws {Error} 검증 실패 시
    */
-  validateInput(input) {
+  validateCarNames(carNameInput) {
     // 1. 구분자 검증
-    this._validateSeparator(input);
+    this._validateSeparator(carNameInput);
 
     // 2. 쉼표로 분리 및 공백 제거
-    const carNames = input.split(",").map(name => name.trim());
+    const carNames = carNameInput.split(",").map(name => name.trim());
     
     // 3. 검증 로직 실행
     this._validateEmptyName(carNames);     // 빈 이름 검증
@@ -87,10 +87,58 @@ class App {
 
     return carNames;
   }
+
+  /**
+   * 문자열 포맷 검증 - 빈 값, 공백, 숫자 외 문자가 없는지 확인
+   * @param {string} attemptCountInput - 사용자 입력 문자열
+   * @returns {string} 검증된 문자열 (공백 제거됨)
+   * @throws {Error} 유효하지 않은 문자열 포맷 시
+   */
+  _validateNumberStringFormat(attemptCountInput) {
+    const trimmedInput = attemptCountInput.trim();
+    
+    if (trimmedInput === "") {
+      throw new Error("[ERROR] 시도할 횟수를 입력해야 합니다.");
+    }
+
+    // 숫자 형태만 허용 (음수, 소수 포함)
+    if (!/^-?\d+(\.\d+)?$/.test(trimmedInput)) {
+      throw new Error("[ERROR] 시도할 횟수는 숫자로만 입력해야 합니다. (공백과 문자는 불가합니다).");
+    }
+    
+    return trimmedInput;
+  }
+
+  /**
+   * 양의 정수 검증 - 1 이상의 양의 정수인지 확인
+   * @param {number} number - 검증할 숫자
+   * @throws {Error} 양의 정수가 아닌 경우
+   */
+  _validatePositiveRange(number) {
+    if(!Number.isInteger(number) || number <= 0) {
+      throw new Error("[ERROR] 시도할 횟수는 1 이상의 양의 정수여야 합니다.(소수와 음수는 불가합니다).");
+    }
+  }
+
+  /**
+   * 이동 횟수 입력 검증 메인 함수
+   * @param {string} attemptCountInput - 사용자 입력 문자열
+   * @returns {number} 검증된 이동 횟수
+   * @throws {Error} 검증 실패 시
+   */
+  validateAttemptCount(attemptCountInput) {
+    this._validateNumberStringFormat(attemptCountInput);
+    const number = Number(this._validateNumberStringFormat(attemptCountInput)); // 숫자로 변환
+    this._validatePositiveRange(number);
+    return number;
+  }
+
   async run() {
-    const input = await Console.readLineAsync("경주할 자동차 이름을 입력하세요.(이름은 쉼표(,) 기준으로 구분)\n");
-    const carNames = this.validateInput(input);
-    Console.print(carNames);
+    const carNameInput = await Console.readLineAsync("경주할 자동차 이름을 입력하세요.(이름은 쉼표(,) 기준으로 구분)\n");
+    const carNames = this.validateCarNames(carNameInput);
+
+    const attemptCountInput = await Console.readLineAsync("시도할 횟수는 몇 회인가요?\n");
+    const attemptCount = this.validateAttemptCount(attemptCountInput);
   }
 }
 
