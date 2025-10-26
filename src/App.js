@@ -156,10 +156,11 @@ class App {
    * @param {number} attemptCount - 시도 횟수
    */
   runRace(carNames, attemptCount) {
+    Console.print('\n실행결과');
     // 각 자동차의 현재 위치를 저장하는 배열
     const carPositions = new Array(carNames.length).fill(0);
-
-    // 경주 실행 (이동 로직만)
+    
+    // 경주 실행 
     for(let round = 0; round < attemptCount; round++) {
       // 자동차 이동 처리
       const updatedPositions = this.moveCars(carPositions);
@@ -168,7 +169,22 @@ class App {
       for(let i = 0; i < carNames.length; i++) {
         carPositions[i] = updatedPositions[i];
       }
+      
+      this.printRoundResult(carNames, carPositions);
     }
+  }
+
+  /**
+   * 현재 라운드 결과 출력
+   * @param {string[]} carNames - 자동차 이름 배열
+   * @param {number[]} carPositions - 각 자동차의 현재 위치 배열
+   */
+  printRoundResult(carNames, carPositions) {
+    for(let i = 0; i < carNames.length; i++) {
+      const position = '-'.repeat(carPositions[i]);
+      Console.print(`${carNames[i]} : ${position}`);
+    }
+    Console.print(''); // 빈 줄
   }
 
   async run() {
